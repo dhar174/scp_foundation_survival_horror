@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCP Foundation: Containment Breach</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="loading-content">
+            <h1>SCP FOUNDATION</h1>
+            <p>SECURE. CONTAIN. PROTECT.</p>
+            <div class="loading-bar">
+                <div id="loading-progress"></div>
+            </div>
+            <p id="loading-text">Initializing...</p>
+        </div>
+    </div>
+    
+    <div id="main-menu" class="hidden">
+        <div class="menu-content">
+            <h1>SCP FOUNDATION</h1>
+            <h2>CONTAINMENT BREACH</h2>
+            <div class="menu-buttons">
+                <button id="start-game">START GAME</button>
+                <button id="controls-btn">CONTROLS</button>
+                <button id="about-btn">ABOUT</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="controls-menu" class="hidden">
+        <div class="menu-content">
+            <h2>CONTROLS</h2>
+            <div class="controls-list">
+                <p><strong>WASD</strong> - Move</p>
+                <p><strong>Mouse</strong> - Look Around</p>
+                <p><strong>E</strong> - Interact</p>
+                <p><strong>Shift</strong> - Sprint</p>
+                <p><strong>Tab</strong> - Inventory</p>
+                <p><strong>ESC</strong> - Pause Menu</p>
+                <p><strong>1-5</strong> - Quick Select Items</p>
+            </div>
+            <button id="back-from-controls">BACK</button>
+        </div>
+    </div>
+
+    <div id="about-menu" class="hidden">
+        <div class="menu-content">
+            <h2>ABOUT</h2>
+            <div class="about-text">
+                <p>You are a security officer at an SCP Foundation facility.</p>
+                <p>Multiple containment breaches have occurred.</p>
+                <p>Your mission: Recontain escaped SCPs and survive.</p>
+                <p>Obtain higher-level keycards by successfully containing increasingly dangerous SCPs.</p>
+                <p>Progression: Level 1 → Level 5 → Omni Keycard</p>
+            </div>
+            <button id="back-from-about">BACK</button>
+        </div>
+    </div>
+
+    <div id="game-container" class="hidden">
+        <canvas id="game-canvas"></canvas>
+        
+        <div id="hud">
+            <div id="health-bar">
+                <div class="hud-label">HEALTH</div>
+                <div class="bar-container">
+                    <div id="health-fill" class="bar-fill"></div>
+                </div>
+            </div>
+            
+            <div id="stamina-bar">
+                <div class="hud-label">STAMINA</div>
+                <div class="bar-container">
+                    <div id="stamina-fill" class="bar-fill"></div>
+                </div>
+            </div>
+
+            <div id="keycard-display">
+                <div class="hud-label">KEYCARD</div>
+                <div id="keycard-level">NONE</div>
+            </div>
+
+            <div id="objective-display">
+                <div class="hud-label">OBJECTIVE</div>
+                <div id="objective-text">Find a keycard</div>
+            </div>
+
+            <div id="interaction-prompt" class="hidden">
+                <p>Press <strong>E</strong> to <span id="interaction-action">interact</span></p>
+            </div>
+        </div>
+
+        <div id="inventory-panel" class="hidden">
+            <h3>INVENTORY</h3>
+            <div id="inventory-grid"></div>
+            <div id="item-description"></div>
+        </div>
+
+        <div id="pause-menu" class="hidden">
+            <div class="menu-content">
+                <h2>PAUSED</h2>
+                <div class="menu-buttons">
+                    <button id="resume-game">RESUME</button>
+                    <button id="restart-game">RESTART</button>
+                    <button id="quit-game">QUIT TO MENU</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-over-screen" class="hidden">
+            <div class="menu-content">
+                <h2 id="game-over-title">CONTAINMENT FAILED</h2>
+                <p id="game-over-message">You have been terminated.</p>
+                <div class="menu-buttons">
+                    <button id="retry-game">RETRY</button>
+                    <button id="quit-to-menu">MAIN MENU</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Engine -->
+    <script src="js/engine/webgl.js"></script>
+    <script src="js/engine/shader.js"></script>
+    <script src="js/engine/camera.js"></script>
+    <script src="js/engine/input.js"></script>
+    <script src="js/engine/math.js"></script>
+    
+    <!-- Game Systems -->
+    <script src="js/game/player.js"></script>
+    <script src="js/game/world.js"></script>
+    <script src="js/game/collision.js"></script>
+    <script src="js/game/inventory.js"></script>
+    
+    <!-- SCP Entities -->
+    <script src="js/entities/scp173.js"></script>
+    <script src="js/entities/scp096.js"></script>
+    <script src="js/entities/scp682.js"></script>
+    <script src="js/entities/scp106.js"></script>
+    
+    <!-- UI and Main -->
+    <script src="js/ui/hud.js"></script>
+    <script src="js/ui/menu.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
