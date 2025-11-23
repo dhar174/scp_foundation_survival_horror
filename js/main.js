@@ -176,11 +176,12 @@ class Game {
             }
         });
         
+        // Check for objective updates (before HUD update)
+        const prevKeycard = this.player.keycardLevel;
+        
         // Update HUD
         this.hud.update(this.player, this.world);
         
-        // Check for objective updates
-        const prevKeycard = this.player.keycardLevel;
         if (prevKeycard !== this.player.keycardLevel) {
             this.updateObjective();
         }

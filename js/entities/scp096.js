@@ -18,6 +18,10 @@ class SCP096 {
         this.attackDamage = 80;
         this.detectionRange = 40;
         
+        // Movement tracking
+        this.wanderTime = 0;
+        this.wanderAngle = Math.random() * Math.PI * 2;
+        
         this.createMesh();
     }
     
@@ -87,8 +91,13 @@ class SCP096 {
             }
         } else if (this.state === 'calm') {
             // Wander randomly when calm
-            this.position.x += Math.sin(Date.now() * 0.001) * this.calmSpeed * deltaTime;
-            this.position.z += Math.cos(Date.now() * 0.001) * this.calmSpeed * deltaTime;
+            this.wanderTime += deltaTime;
+            if (this.wanderTime > 3) {
+                this.wanderAngle = Math.random() * Math.PI * 2;
+                this.wanderTime = 0;
+            }
+            this.position.x += Math.sin(this.wanderAngle) * this.calmSpeed * deltaTime;
+            this.position.z += Math.cos(this.wanderAngle) * this.calmSpeed * deltaTime;
         }
     }
     

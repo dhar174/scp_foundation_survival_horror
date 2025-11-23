@@ -51,25 +51,32 @@ class HUD {
         this.updateStamina(player.stamina, player.maxStamina);
         this.updateKeycard(player.keycardLevel);
         
-        // Check for nearby interactables
+        // Check for nearby interactables (prioritize closest)
         const nearbyObjects = world.getObjectsInRange(player.position, 2.0);
-        let hasInteractable = false;
+        let closestInteractable = null;
+        let closestDistance = Infinity;
         
         nearbyObjects.forEach(obj => {
-            if (obj.type === 'keycard') {
-                this.showInteraction('pick up keycard');
-                hasInteractable = true;
-            } else if (obj.type === 'door') {
-                if (obj.keycardRequired <= player.keycardLevel) {
-                    this.showInteraction('open door');
-                } else {
-                    this.showInteraction(`locked (Level ${obj.keycardRequired} required)`);
+            if (obj.type === 'keycard' || obj.type === 'door') {
+                const dist = MathUtils.vec3.distance(player.position, obj.position);
+                if (dist < closestDistance) {
+                    closestDistance = dist;
+                    closestInteractable = obj;
                 }
-                hasInteractable = true;
             }
         });
         
-        if (!hasInteractable) {
+        if (closestInteractable) {
+            if (closestInteractable.type === 'keycard') {
+                this.showInteraction('pick up keycard');
+            } else if (closestInteractable.type === 'door') {
+                if (closestInteractable.keycardRequired <= player.keycardLevel) {
+                    this.showInteraction('open door');
+                } else {
+                    this.showInteraction(`locked (Level ${closestInteractable.keycardRequired} required)`);
+                }
+            }
+        } else {
             this.hideInteraction();
         }
     }

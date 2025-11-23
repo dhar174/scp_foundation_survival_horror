@@ -25,6 +25,7 @@ class Player {
         
         // State
         this.isAlive = true;
+        this.lastEKeyState = false;
         
         // Collision
         this.radius = 0.4;
@@ -103,10 +104,11 @@ class Player {
             this.position = newPos;
         }
         
-        // Check for interactions
-        if (input.isKeyPressed('KeyE')) {
+        // Check for interactions (only on key press, not hold)
+        if (input.isKeyPressed('KeyE') && !this.lastEKeyState) {
             this.interact(world);
         }
+        this.lastEKeyState = input.isKeyPressed('KeyE');
     }
     
     interact(world) {
