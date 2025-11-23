@@ -142,7 +142,7 @@ describe('vec3 utilities', () => {
 
 ```javascript
 // tests/integration/scp173.test.js
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { SCP173Behavior } from '../../src/game/scp173.js';
 import { Entity } from '../../src/core/entity.js';
 
