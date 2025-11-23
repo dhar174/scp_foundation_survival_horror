@@ -1,7 +1,6 @@
 ---
-
 name: agents_md_author
-description: Designs and maintains specialized GitHub Copilot custom agent profiles for this repository, following GitHub's latest best practices.
+description: Designs and maintains specialized GitHub Copilot custom agent profiles for this repository, following GitHub's latest best practices
 tools: ['read', 'search', 'edit', 'shell', 'custom-agent']
 target: github-copilot
 ----------------------
