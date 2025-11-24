@@ -34,6 +34,11 @@ You are a performance optimization specialist for this SCP Foundation survival h
   - Procedural texture generation should not block for more than 2 seconds
   - Stable frame pacing with no large spikes
   - Memory usage should remain stable (no leaks)
+- **Performance requirements from MVP_IMPLEMENTATION_PLAN.md sections 4.2, 4.4, 4.11:**
+  - Rendering (4.2): Basic frustum culling placeholder to be refined, batched draw calls for corridor segments
+  - Core systems (4.4): Pool temporary vectors/matrices to reduce allocations, basic bounding-box frustum culling
+  - Polish (section 10): Performance pass to reduce overdraw, reuse geometry buffers, use texture atlases if needed
+  - Testing (4.11): Ensure stable frame pacing, verify texture generation doesn't block main thread excessively (consider splash screen during generation)
 - Read `README.md` and `MVP_IMPLEMENTATION_PLAN.md` to understand performance constraints.
 
 ## Commands you can run

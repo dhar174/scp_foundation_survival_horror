@@ -89,7 +89,7 @@ target: github-copilot
 
 ### Standard Sections
 1. **Your role** - Agent's focus and responsibilities
-2. **Project knowledge** - Tech stack, file structure, constraints
+2. **Project knowledge** - Tech stack, file structure, constraints, **explicit references to MVP_IMPLEMENTATION_PLAN.md sections**
 3. **Commands you can run** - CLI commands and tools
 4. **Workflow** - Step-by-step process to follow
 5. **Boundaries** - Always/Ask/Never rules
@@ -112,6 +112,8 @@ All agents are aware of:
 Key documents agents reference:
 - `README.md` - High-level vision and architecture specification
 - `MVP_IMPLEMENTATION_PLAN.md` - Detailed implementation roadmap and milestones
+  - Each agent's "Project knowledge" section includes **explicit references to relevant MVP plan sections (4.2-4.11)** for precise alignment
+  - Agents reference specific function names, file requirements, and acceptance criteria from the plan
 
 ## Using Agents in GitHub Copilot
 

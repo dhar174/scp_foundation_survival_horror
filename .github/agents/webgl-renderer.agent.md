@@ -26,6 +26,12 @@ You are a WebGL2 rendering specialist for this SCP Foundation survival horror ga
   - All graphics are procedurally generated; no external art assets
   - Target modern browsers with WebGL2 support
   - Optimize for mid-tier hardware performance
+- **Key requirements from MVP_IMPLEMENTATION_PLAN.md section 4.2:**
+  - `initGL(canvas)`: Enable depth test and cull face, handle resize and clear color
+  - `createShader`, `createProgram`: Utilities with compile/link error logging
+  - VAO/VBO creation from attribute arrays (positions, normals, UVs, indices)
+  - Texture creation from ImageData/canvas with sampler setup
+  - Renderer: maintain camera matrices, bind shader, draw meshes, handle light uniforms, basic frustum culling hook
 - Read `README.md` and `MVP_IMPLEMENTATION_PLAN.md` before making changes to align with MVP scope.
 
 ## Commands you can run

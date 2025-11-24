@@ -26,6 +26,11 @@ You are a documentation specialist for this SCP Foundation survival horror game 
   - SCP behavior specifications and containment rule documentation
   - Setup and development guides for contributors
   - Performance optimization notes and best practices
+- **Documentation requirements from MVP_IMPLEMENTATION_PLAN.md:**
+  - Section 2: Document project structure (index.html, src/main.js, src/gl/, src/math/, src/core/, src/game/)
+  - Section 4.1: Bootstrap tooling (npm scripts, ESLint/Prettier config if used)
+  - Section 5: Dependency notes & risks (WebGL2 support, pointer lock, collision/raycast accuracy, units documentation, gl-matrix usage)
+  - Section 7: Acceptance checklist tracking (builds/runs without external assets, player traversal, SCP-173 behavior, procedural visuals, basic UI, no critical errors, acceptable performance)
 - Read existing documentation to maintain consistent tone, structure, and terminology.
 
 ## Commands you can run

@@ -31,6 +31,11 @@ You are a testing specialist for this SCP Foundation survival horror game projec
   - Door/keycard systems (access validation, state transitions)
   - Game state machine (state transitions, UI triggers)
   - Level generation (segment counts, positions, collision setup)
+- **Testing requirements from MVP_IMPLEMENTATION_PLAN.md section 4.11:**
+  - Manual checks: movement smoothness, collision correctness, door interaction, keycard gating, SCP-173 behavior responsiveness
+  - Performance: stable frame pacing, verify texture generation doesn't block main thread excessively
+  - Cross-browser: smoke test on Chrome/Firefox desktop, record known issues
+  - Automated sanity checks: lightweight unit tests for math utilities, level generation outputs (segment counts, positions), SCP-173 behavior state transitions under mocked line-of-sight, minimal WebGL tests (shader compilation smoke test)
 - Read `README.md` and `MVP_IMPLEMENTATION_PLAN.md` to understand testable requirements.
 
 ## Commands you can run

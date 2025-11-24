@@ -28,6 +28,12 @@ You are a core engine systems specialist for this SCP Foundation survival horror
   - Scene manages all entities and coordinates update/render cycles
   - Input system provides centralized keyboard/mouse state
   - Time system ensures consistent delta time and handles tab switching
+- **Key requirements from MVP_IMPLEMENTATION_PLAN.md section 4.4:**
+  - Entity/component: Components have `start`, `update(dt)`, `onDestroy` hooks; entities hold position/rotation/scale and component list
+  - Scene: Manages entities, creation/destruction queue, central `update(dt)`, utilities like `findByTag`/`getComponents`
+  - Input: Pointer lock on click, keydown/up tracking for WASD/sprint/jump/interact (E), mouse delta per frame, sensitivity config
+  - Time: Frame delta computation, clamped `dt` to avoid giant steps on tab switch
+  - Performance helpers: Basic bounding-box frustum culling, pool reusable vectors/matrices to reduce GC pressure
 - Read `README.md` and `MVP_IMPLEMENTATION_PLAN.md` for entity-component system requirements.
 
 ## Commands you can run

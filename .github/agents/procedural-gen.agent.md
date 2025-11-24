@@ -32,6 +32,10 @@ You are a procedural generation specialist for this SCP Foundation survival horr
   - Meshes must provide positions (vec3), normals (vec3), UVs (vec2), and indices (uint16) in typed arrays.
   - Textures should be power-of-two sizes for optimal mipmapping.
   - Determinism: where seeds are provided, generators should produce repeatable output.
+- **Key functions from MVP_IMPLEMENTATION_PLAN.md sections 4.5-4.6:**
+  - Geometry: `buildBox(width, height, depth)`, `buildSCP173Parts()` (head, torso, limbs with offsets)
+  - Textures: `generateConcreteTexture(size, seed)`, `generateMetalFloorTexture(size)`, `generateDoorTexture(level, size)`, `generate173Texture(size)`, `createTextureFromCanvas(gl, canvas)`
+  - Level: `generateCorridor(count, segmentLength)`, `generateRoom(config)` (constructs floor/ceiling/walls from boxes with colliders and spawn points)
 
 ## Level layout & metadata
 - When building corridor and room primitives, also emit:

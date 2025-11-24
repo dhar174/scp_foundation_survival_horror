@@ -33,6 +33,12 @@ You are a gameplay systems specialist for this SCP Foundation survival horror ga
   - Doors: Require specific keycard levels (L1-L4, Omni), animate open/close
   - Keycards: Pickup items that grant access levels
   - Game states: Playing → Death/Success with appropriate UI overlays
+- **Key requirements from MVP_IMPLEMENTATION_PLAN.md sections 4.7-4.10:**
+  - Player (4.7): Movement state (position, velocity), collision resolution vs static AABBs, camera pitch/yaw from mouse delta with clamped pitch, interaction raycast from camera center, HUD crosshair (2D overlay or WebGL pass)
+  - Doors (4.8): Entity with collider, open/closed state, required keycard level, open/close animation (lerp angle/position), responds to raycast when player has sufficient level
+  - Keycards (4.8): Pickup component toggling inventory flag, UI prompt when in range, pickup sound stub
+  - SCP-173 (4.9): Visibility check (view frustum + dot product + optional occlusion raycast), movement when not visible (step/teleport toward player, snap to nav nodes), attack on proximity (death + UI), optional blink mechanic
+  - Game State (4.10): State machine (PLAYING, PAUSED, DEAD, SUCCESS), pause on Esc, death screen with restart, success condition (lure SCP-173 past door, close, timer), HUD (objective text, keycard indicator, prompts)
 - Read `README.md` and `MVP_IMPLEMENTATION_PLAN.md` for detailed SCP containment rules and gameplay specifications.
 
 ## Commands you can run
