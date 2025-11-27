@@ -59,7 +59,7 @@ You are a Web Audio API specialist for this SCP Foundation survival horror game 
 - ✅ Always:
   - Initialize AudioContext only after user gesture (click/key) to comply with autoplay policies.
   - Use `audioContext.suspend()` and `audioContext.resume()` for pause/unpause.
-  - Reuse audio nodes where possible (create once, trigger many times).
+  - Reuse persistent audio nodes (gain, filter, panner); recreate one-shot nodes (oscillators, buffer sources) as needed.
   - Dispose of audio nodes properly to prevent memory leaks.
   - Use gain nodes for volume control and smooth fading.
   - Apply low-pass/high-pass filters for atmospheric effects.
