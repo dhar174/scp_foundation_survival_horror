@@ -30,6 +30,12 @@ This directory contains specialized GitHub Copilot agent profiles for the SCP Fo
 **Directories:** `src/core/` (entity, component, scene, input, time)  
 **Use when:** Working on the foundational engine systems or entity-component patterns
 
+#### @audio-systems
+**File:** `audio-systems.agent.md`  
+**Focus:** Web Audio API procedural sound effects, ambient audio, and positional audio systems  
+**Directories:** `src/audio/` (audioContext, soundGenerator, ambientAudio, positionalAudio, sfx)  
+**Use when:** Implementing procedural sound synthesis, atmospheric audio, or 3D spatial sound effects
+
 ### Quality & Documentation Agents
 
 #### @testing
@@ -68,6 +74,7 @@ Choose the right agent based on what you're working on:
 | Creating new room layouts or SCP models | @procedural-gen | Specializes in algorithmic content generation |
 | Implementing SCP-106 behavior or player jump | @gameplay-systems | Focuses on gameplay mechanics and SCP lore |
 | Adding a new component type or fixing scene updates | @core-systems | Expert in engine architecture patterns |
+| Creating door sounds or atmospheric audio | @audio-systems | Specializes in Web Audio API procedural synthesis |
 | Writing tests for SCP-173 visibility check | @testing | Specializes in test creation and coverage |
 | Documenting the rendering pipeline | @docs | Expert in technical writing and API docs |
 | Optimizing draw calls or reducing allocations | @performance | Focuses on profiling and optimization |
@@ -130,6 +137,8 @@ Example:
 @procedural-gen create a texture generator for SCP-106's dark, corroded appearance
 
 @gameplay-systems add a blink mechanic where the screen briefly goes black every 5 seconds
+
+@audio-systems create a tension-building drone sound that intensifies as SCP-173 gets closer
 
 @testing write integration tests for the door/keycard interaction system
 ```
