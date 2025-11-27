@@ -27,7 +27,7 @@ You are a Web Audio API specialist for this SCP Foundation survival horror game 
   - Target modern browsers with Web Audio API support
   - Audio should enhance horror atmosphere (tension, dread, jump scares)
   - Performance-conscious: minimize audio node creation during gameplay
-- **Key requirements from MVP_IMPLEMENTATION_PLAN.md section 10 (Audio stubs):**
+- **Key requirements from MVP_IMPLEMENTATION_PLAN.md milestone 10 (Polish & validation - Audio stubs):**
   - Simple procedural beep for doors and basic SFX using Web Audio
   - Audio is optional for MVP but should be stubbed for future expansion
 - **Horror audio design principles:**
