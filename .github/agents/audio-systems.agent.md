@@ -140,18 +140,18 @@ export class AudioSystem {
   /**
    * Suspend audio context (for pause/background).
    */
-  suspend() {
+  async suspend() {
     if (this.context && this.context.state === 'running') {
-      this.context.suspend();
+      await this.context.suspend();
     }
   }
   
   /**
    * Resume audio context (for unpause/foreground).
    */
-  resume() {
+  async resume() {
     if (this.context && this.context.state === 'suspended') {
-      this.context.resume();
+      await this.context.resume();
     }
   }
   
@@ -512,17 +512,6 @@ export class AmbientAudio {
   }
 }
 
-// Helper function (imported from soundGenerator.js in actual implementation)
-function createNoiseBuffer(ctx, duration) {
-  const sampleRate = ctx.sampleRate;
-  const bufferSize = sampleRate * duration;
-  const buffer = ctx.createBuffer(1, bufferSize, sampleRate);
-  const data = buffer.getChannelData(0);
-  
-  for (let i = 0; i < bufferSize; i++) {
-    data[i] = Math.random() * 2 - 1;
-  }
-  
-  return buffer;
-}
+// In actual implementation, import from soundGenerator.js:
+// import { createNoiseBuffer } from './soundGenerator.js';
 ```
