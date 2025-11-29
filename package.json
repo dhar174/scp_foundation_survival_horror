@@ -1,0 +1,27 @@
+{
+  "name": "scp_foundation_survival_horror",
+  "version": "1.0.0",
+  "description": "A survival horror game set in the SCP Foundation universe",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src/",
+    "format": "prettier --write src/"
+  },
+  "keywords": [
+    "scp",
+    "webgl",
+    "game",
+    "survival-horror"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.7.2",
+    "vite": "^7.2.4"
+  }
+}
