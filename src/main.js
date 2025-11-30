@@ -3,31 +3,7 @@
  * Initializes WebGL2 context and starts the game loop.
  */
 
-/**
- * Initialize WebGL2 rendering context
- * @param {HTMLCanvasElement} canvas - The canvas element
- * @returns {WebGL2RenderingContext|null} The WebGL2 context or null if unsupported
- */
-function initWebGL(canvas) {
-  const gl = canvas.getContext('webgl2');
-
-  if (!gl) {
-    return null;
-  }
-
-  // Enable depth testing for 3D rendering
-  gl.enable(gl.DEPTH_TEST);
-  gl.depthFunc(gl.LEQUAL);
-
-  // Enable back-face culling for performance
-  gl.enable(gl.CULL_FACE);
-  gl.cullFace(gl.BACK);
-
-  // Set clear color to dark gray
-  gl.clearColor(0.1, 0.1, 0.1, 1.0);
-
-  return gl;
-}
+import { initGL } from './gl/index.js';
 
 /**
  * Handle canvas resize to match display size
@@ -74,7 +50,7 @@ function main() {
     return;
   }
 
-  const gl = initWebGL(canvas);
+  const gl = initGL(canvas);
 
   if (!gl) {
     showError(
@@ -104,7 +80,7 @@ function main() {
    */
   function gameLoop(currentTime) {
     // Calculate delta time in seconds, clamped to avoid large steps
-    const dt = Math.min((currentTime - lastTime) / 1000, 0.1);
+    const _dt = Math.min((currentTime - lastTime) / 1000, 0.1);
     lastTime = currentTime;
 
     // Resize canvas if needed

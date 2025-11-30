@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A survival horror game set in the SCP Foundation universe",
   "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
