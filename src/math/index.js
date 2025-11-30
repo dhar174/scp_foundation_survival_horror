@@ -1,7 +1,7 @@
 /**
  * Math Utilities
- * This module will contain vector and matrix math utilities.
+ * Contains vector and matrix math utilities.
  */
 
-// Placeholder for math utilities
-// Will include vec3, mat4 operations and helpers
+export * as vec3 from './vec3.js';
+export * as mat4 from './mat4.js';
