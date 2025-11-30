@@ -75,11 +75,16 @@ export function createMesh(gl, data) {
     buffers,
     /**
      * Delete this mesh's GPU resources
+     * @param {WebGL2RenderingContext} glContext - The WebGL2 context (optional, uses creation context if not provided)
      */
-    dispose() {
-      gl.deleteVertexArray(vao);
+    dispose(glContext) {
+      const ctx = glContext || gl;
+      if (!ctx) {
+        return;
+      }
+      ctx.deleteVertexArray(vao);
       for (const buffer of buffers) {
-        gl.deleteBuffer(buffer);
+        ctx.deleteBuffer(buffer);
       }
     },
   };

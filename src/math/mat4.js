@@ -550,3 +550,56 @@ export function invert(out, a) {
 
   return out;
 }
+
+/**
+ * Compute the normal matrix (inverse transpose of upper-left 3x3) from a mat4
+ * @param {Float32Array} out - Destination mat3 (9 elements)
+ * @param {Float32Array} a - Source mat4
+ * @returns {Float32Array} out
+ */
+export function normalMatrix(out, a) {
+  const a00 = a[0],
+    a01 = a[1],
+    a02 = a[2];
+  const a10 = a[4],
+    a11 = a[5],
+    a12 = a[6];
+  const a20 = a[8],
+    a21 = a[9],
+    a22 = a[10];
+
+  const b01 = a22 * a11 - a12 * a21;
+  const b11 = -a22 * a10 + a12 * a20;
+  const b21 = a21 * a10 - a11 * a20;
+
+  let det = a00 * b01 + a01 * b11 + a02 * b21;
+
+  if (!det) {
+    // Return identity mat3 if not invertible
+    out[0] = 1;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 1;
+    out[5] = 0;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 1;
+    return out;
+  }
+
+  det = 1.0 / det;
+
+  // Compute inverse transpose (transposed result of 3x3 inverse)
+  out[0] = b01 * det;
+  out[1] = (-a22 * a01 + a02 * a21) * det;
+  out[2] = (a12 * a01 - a02 * a11) * det;
+  out[3] = b11 * det;
+  out[4] = (a22 * a00 - a02 * a20) * det;
+  out[5] = (-a12 * a00 + a02 * a10) * det;
+  out[6] = b21 * det;
+  out[7] = (-a21 * a00 + a01 * a20) * det;
+  out[8] = (a11 * a00 - a01 * a10) * det;
+
+  return out;
+}

@@ -125,6 +125,7 @@ layout(location = 2) in vec2 a_uv;
 uniform mat4 u_modelMatrix;
 uniform mat4 u_viewMatrix;
 uniform mat4 u_projMatrix;
+uniform mat3 u_normalMatrix;
 
 out vec3 v_worldPos;
 out vec3 v_worldNormal;
@@ -133,7 +134,7 @@ out vec2 v_uv;
 void main() {
   vec4 worldPos = u_modelMatrix * vec4(a_position, 1.0);
   v_worldPos = worldPos.xyz;
-  v_worldNormal = mat3(u_modelMatrix) * a_normal;
+  v_worldNormal = u_normalMatrix * a_normal;
   v_uv = a_uv;
   gl_Position = u_projMatrix * u_viewMatrix * worldPos;
 }

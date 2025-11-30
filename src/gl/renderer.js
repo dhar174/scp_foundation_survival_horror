@@ -52,6 +52,7 @@ export class Renderer {
 
     // Temp matrices for transforms
     this._modelMatrix = mat4.create();
+    this._normalMatrix = new Float32Array(9);
 
     // Update initial projection matrix
     this.updateProjectionMatrix();
@@ -161,9 +162,9 @@ export class Renderer {
   }
 
   /**
-   * Basic frustum culling stub - returns true if object might be visible
-   * @param {Object} _renderable - Object to check
-   * @returns {boolean} True if object should be rendered
+   * Basic frustum culling stub - currently not implemented
+   * @param {Object} _renderable - Object to check (unused in current implementation)
+   * @returns {boolean} Always returns true until frustum culling is implemented
    */
   isInFrustum(_renderable) {
     // TODO: Implement proper frustum culling with AABB checks
@@ -187,9 +188,10 @@ export class Renderer {
     }
 
     if (rotation) {
-      mat4.rotateY(out, out, rotation[1]);
-      mat4.rotateX(out, out, rotation[0]);
+      // Apply rotations in Z-X-Y order for local-space rotations (standard convention)
       mat4.rotateZ(out, out, rotation[2]);
+      mat4.rotateX(out, out, rotation[0]);
+      mat4.rotateY(out, out, rotation[1]);
     }
 
     if (scale) {
@@ -239,6 +241,10 @@ export class Renderer {
         obj.scale || null
       );
 
+      // Compute and set normal matrix (inverse transpose of model matrix)
+      mat4.normalMatrix(this._normalMatrix, this._modelMatrix);
+      gl.uniformMatrix3fv(loc.u_normalMatrix, false, this._normalMatrix);
+
       // Set model matrix uniform
       gl.uniformMatrix4fv(loc.u_modelMatrix, false, this._modelMatrix);
 
@@ -261,6 +267,9 @@ export class Renderer {
         gl.bindVertexArray(null);
       }
     }
+
+    // Ensure clean VAO state after rendering all objects
+    gl.bindVertexArray(null);
   }
 
   /**
