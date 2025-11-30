@@ -9,7 +9,14 @@
  * @returns {WebGL2RenderingContext|null} The WebGL2 context or null if unsupported
  */
 export function initGL(canvas) {
-  const gl = canvas.getContext('webgl2');
+  const gl = canvas.getContext('webgl2', {
+    alpha: false,
+    antialias: true,
+    depth: true,
+    premultipliedAlpha: false,
+    preserveDrawingBuffer: false,
+    powerPreference: 'high-performance',
+  });
 
   if (!gl) {
     return null;

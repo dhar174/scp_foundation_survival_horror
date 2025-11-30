@@ -11,13 +11,16 @@ import { initGL } from './gl/index.js';
  * @param {WebGL2RenderingContext} gl - The WebGL2 context
  */
 function resizeCanvas(canvas, gl) {
+  const dpr = window.devicePixelRatio || 1;
   const displayWidth = canvas.clientWidth;
   const displayHeight = canvas.clientHeight;
+  const width = Math.round(displayWidth * dpr);
+  const height = Math.round(displayHeight * dpr);
 
-  if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
-    canvas.width = displayWidth;
-    canvas.height = displayHeight;
-    gl.viewport(0, 0, canvas.width, canvas.height);
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+    gl.viewport(0, 0, width, height);
   }
 }
 
@@ -26,6 +29,7 @@ function resizeCanvas(canvas, gl) {
  * @param {string} message - Error message to display
  */
 function showError(message) {
+  console.error(message);
   const errorDiv = document.getElementById('error-message');
   const instructions = document.getElementById('instructions');
 
@@ -82,9 +86,6 @@ function main() {
     // Calculate delta time in seconds, clamped to avoid large steps
     const _dt = Math.min((currentTime - lastTime) / 1000, 0.1);
     lastTime = currentTime;
-
-    // Resize canvas if needed
-    resizeCanvas(canvas, gl);
 
     // Clear the canvas
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
