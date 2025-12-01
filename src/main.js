@@ -11,7 +11,6 @@ import {
   Material,
   Renderer,
 } from './gl/index.js';
-import * as vec3 from './math/vec3.js';
 import {
   generateConcreteTexture,
   generateMetalFloorTexture,
@@ -19,6 +18,15 @@ import {
   generate173Texture,
   mergeMeshParts,
 } from './game/index.js';
+import {
+  Scene,
+  Entity,
+  Component,
+  Input,
+  Time,
+  DebugOverlay,
+  releaseAllTemp,
+} from './core/index.js';
 
 /**
  * Handle canvas resize to match display size
@@ -63,6 +71,56 @@ function showError(message) {
 }
 
 /**
+ * Rotating component for demo purposes
+ */
+class RotatingComponent extends Component {
+  constructor(speed = 0.5) {
+    super();
+    this.speed = speed;
+  }
+
+  update(dt) {
+    if (this.entity) {
+      this.entity.rotation[1] += dt * this.speed;
+    }
+  }
+}
+
+/**
+ * Renderable component that bridges entity and renderer
+ */
+class RenderableComponent extends Component {
+  constructor(mesh, material) {
+    super();
+    this.mesh = mesh;
+    this.material = material;
+    this._renderable = null;
+  }
+
+  start() {
+    // Create renderable object for the renderer
+    this._renderable = {
+      mesh: this.mesh,
+      material: this.material,
+      position: this.entity.position,
+      rotation: this.entity.rotation,
+      scale: this.entity.scale,
+    };
+  }
+
+  /**
+   * Get the renderable object. Initializes if not yet created.
+   * @returns {Object|null} Renderable object or null if entity not set
+   */
+  getRenderable() {
+    if (!this._renderable && this.entity) {
+      this.start();
+    }
+    return this._renderable;
+  }
+}
+
+/**
  * Main initialization function
  */
 function main() {
@@ -88,6 +146,14 @@ function main() {
   console.log('Vendor:', gl.getParameter(gl.VENDOR));
   console.log('Renderer:', gl.getParameter(gl.RENDERER));
 
+  // Initialize core systems
+  const time = new Time();
+  const input = new Input(canvas);
+  const debugOverlay = new DebugOverlay(time);
+  const scene = new Scene();
+
+  console.log('Core systems initialized');
+
   // Create renderer
   const renderer = new Renderer(gl);
 
@@ -108,51 +174,64 @@ function main() {
   const scp173Texture = createTextureFromCanvas(gl, scp173Canvas);
   console.log('Procedural textures generated successfully');
 
-  // Create a wall box with concrete texture
+  // Create meshes
   const boxGeometry = buildBox(1, 1, 1);
   const boxMesh = createMesh(gl, boxGeometry);
   const boxMaterial = new Material({ diffuseMap: concreteTexture });
 
-  // Add a box to render - positioned at origin
-  const box1 = {
-    mesh: boxMesh,
-    material: boxMaterial,
-    position: vec3.create(0, 0, 0),
-    rotation: vec3.create(0, 0, 0),
-    scale: vec3.create(1, 1, 1),
-  };
-  renderer.addRenderable(box1);
-
-  // Add a floor with metal floor texture
   const floorGeometry = buildBox(10, 0.1, 10);
   const floorMesh = createMesh(gl, floorGeometry);
   const floorMaterial = new Material({ diffuseMap: metalFloorTexture });
 
-  const floor = {
-    mesh: floorMesh,
-    material: floorMaterial,
-    position: vec3.create(0, -0.55, 0),
-    rotation: vec3.create(0, 0, 0),
-    scale: vec3.create(1, 1, 1),
-  };
-  renderer.addRenderable(floor);
-
-  // Build and add SCP-173 using procedural geometry
   console.log('Building SCP-173 model...');
   const scp173Parts = buildSCP173Parts();
   const scp173Merged = mergeMeshParts(scp173Parts);
   const scp173Mesh = createMesh(gl, scp173Merged);
   const scp173Material = new Material({ diffuseMap: scp173Texture });
-
-  const scp173 = {
-    mesh: scp173Mesh,
-    material: scp173Material,
-    position: vec3.create(-2, -0.5, 0),
-    rotation: vec3.create(0, 0, 0),
-    scale: vec3.create(1, 1, 1),
-  };
-  renderer.addRenderable(scp173);
   console.log('SCP-173 model built successfully');
+
+  // Create entities using the entity-component system
+  // Rotating box entity
+  const boxEntity = new Entity();
+  boxEntity.position[0] = 0;
+  boxEntity.position[1] = 0;
+  boxEntity.position[2] = 0;
+  boxEntity.addTag('demo');
+  boxEntity.addComponent(new RotatingComponent(0.5));
+  boxEntity.addComponent(new RenderableComponent(boxMesh, boxMaterial));
+  scene.addEntityImmediate(boxEntity);
+
+  // Floor entity
+  const floorEntity = new Entity();
+  floorEntity.position[0] = 0;
+  floorEntity.position[1] = -0.55;
+  floorEntity.position[2] = 0;
+  floorEntity.addTag('floor');
+  floorEntity.addComponent(new RenderableComponent(floorMesh, floorMaterial));
+  scene.addEntityImmediate(floorEntity);
+
+  // SCP-173 entity
+  const scp173Entity = new Entity();
+  scp173Entity.position[0] = -2;
+  scp173Entity.position[1] = -0.5;
+  scp173Entity.position[2] = 0;
+  scp173Entity.addTag('scp');
+  scp173Entity.addTag('scp-173');
+  scp173Entity.addComponent(new RenderableComponent(scp173Mesh, scp173Material));
+  scene.addEntityImmediate(scp173Entity);
+
+  // Add all renderables to the renderer
+  for (const entity of scene.entities) {
+    const renderableComponent = entity.getComponent(RenderableComponent);
+    if (renderableComponent) {
+      const renderable = renderableComponent.getRenderable();
+      if (renderable) {
+        renderer.addRenderable(renderable);
+      }
+    }
+  }
+
+  console.log(`Scene initialized with ${scene.getEntityCount()} entities`);
 
   // Set camera position for good view
   renderer.setCameraPosition(4, 2, 6);
@@ -169,26 +248,35 @@ function main() {
     instructions.style.display = 'none';
   }
 
-  // Track delta time for updates
-  let lastTime = 0;
+  console.log('Press Tab to toggle debug overlay (FPS, frame time)');
 
   /**
    * Main game loop
    * @param {number} currentTime - Current timestamp in milliseconds
    */
   function gameLoop(currentTime) {
-    // Calculate delta time in seconds, clamped to avoid large steps
-    const dt = Math.min((currentTime - lastTime) / 1000, 0.1);
-    lastTime = currentTime;
+    // Update time system
+    const dt = time.update(currentTime);
 
-    // Rotate the box for visual demonstration
-    box1.rotation[1] += dt * 0.5; // Rotate around Y axis
+    // Update debug overlay
+    debugOverlay.setValue('Entities', scene.getEntityCount());
+    debugOverlay.setValue('Pointer Lock', input.isPointerLocked ? 'Yes' : 'No');
+    debugOverlay.update();
+
+    // Update scene (all entities and their components)
+    scene.update(dt);
 
     // Clear the canvas
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     // Render the scene
     renderer.render();
+
+    // Clear per-frame input state
+    input.clearFrameState();
+
+    // Release temporary pooled objects
+    releaseAllTemp();
 
     // Continue the loop
     requestAnimationFrame(gameLoop);
