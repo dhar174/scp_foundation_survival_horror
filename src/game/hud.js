@@ -71,7 +71,8 @@ export class HUD {
     const displayHeight = this.gameCanvas.clientHeight;
     this.canvas.width = Math.round(displayWidth * dpr);
     this.canvas.height = Math.round(displayHeight * dpr);
-    this.ctx.scale(dpr, dpr);
+    // Reset transform and apply new scale for HiDPI
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
   /**
