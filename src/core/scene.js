@@ -98,6 +98,8 @@ export class Scene {
       // Skip if entity was already destroyed
       if (entity._destroyed) continue;
 
+      // Skip if already in scene
+      if (this.entities.includes(entity)) continue;
       entity.scene = this;
       this.entities.push(entity);
 
