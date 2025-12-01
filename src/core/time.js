@@ -93,7 +93,7 @@ export class Time {
     if (this._fpsAccumulator >= 1.0) {
       this.fps = this._fpsFrameCount / this._fpsAccumulator;
       this._fpsFrameCount = 0;
-      this._fpsAccumulator = 0;
+      this._fpsAccumulator -= 1.0; // Preserve remainder instead of resetting to 0
 
       // Smooth FPS using exponential moving average
       if (this.smoothedFps === 0) {

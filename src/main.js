@@ -108,7 +108,14 @@ class RenderableComponent extends Component {
     };
   }
 
+  /**
+   * Get the renderable object. Initializes if not yet created.
+   * @returns {Object|null} Renderable object or null if entity not set
+   */
   getRenderable() {
+    if (!this._renderable && this.entity) {
+      this.start();
+    }
     return this._renderable;
   }
 }

@@ -7,11 +7,11 @@ export class Scene {
     /** @type {Array<import('./entity.js').Entity>} All active entities in the scene */
     this.entities = [];
 
-    /** @type {Array<import('./entity.js').Entity>} Entities to add at end of frame */
-    this.entitiesToAdd = [];
+    /** @type {Set<import('./entity.js').Entity>} Entities to add at end of frame */
+    this.entitiesToAdd = new Set();
 
-    /** @type {Array<import('./entity.js').Entity>} Entities to remove at end of frame */
-    this.entitiesToRemove = [];
+    /** @type {Set<import('./entity.js').Entity>} Entities to remove at end of frame */
+    this.entitiesToRemove = new Set();
 
     /** @type {Map<string, Set<import('./entity.js').Entity>>} Tag to entity lookup */
     this.taggedEntities = new Map();
@@ -24,7 +24,10 @@ export class Scene {
    * @returns {import('./entity.js').Entity} The added entity
    */
   addEntity(entity) {
-    this.entitiesToAdd.push(entity);
+    // Skip if already in scene or pending addition
+    if (!this.entities.includes(entity)) {
+      this.entitiesToAdd.add(entity);
+    }
     return entity;
   }
 
@@ -35,6 +38,11 @@ export class Scene {
    * @returns {import('./entity.js').Entity} The added entity
    */
   addEntityImmediate(entity) {
+    // Skip if already in scene
+    if (this.entities.includes(entity)) {
+      return entity;
+    }
+
     entity.scene = this;
     this.entities.push(entity);
 
@@ -55,9 +63,7 @@ export class Scene {
    * @param {import('./entity.js').Entity} entity - Entity to remove
    */
   removeEntity(entity) {
-    if (!this.entitiesToRemove.includes(entity)) {
-      this.entitiesToRemove.push(entity);
-    }
+    this.entitiesToRemove.add(entity);
   }
 
   /**
@@ -77,17 +83,15 @@ export class Scene {
         // Destroy entity if not already destroyed
         if (!entity._destroyed) {
           // Temporarily clear scene to prevent recursive removal
-          const scene = entity.scene;
           entity.scene = null;
           entity.destroy();
-          entity.scene = scene;
         }
 
         entity.scene = null;
         this.entities.splice(index, 1);
       }
     }
-    this.entitiesToRemove = [];
+    this.entitiesToRemove.clear();
 
     // Process additions
     for (const entity of this.entitiesToAdd) {
@@ -105,7 +109,7 @@ export class Scene {
       // Call start on all components
       entity._onAddedToScene();
     }
-    this.entitiesToAdd = [];
+    this.entitiesToAdd.clear();
   }
 
   /**
@@ -209,8 +213,8 @@ export class Scene {
     }
 
     this.entities = [];
-    this.entitiesToAdd = [];
-    this.entitiesToRemove = [];
+    this.entitiesToAdd.clear();
+    this.entitiesToRemove.clear();
     this.taggedEntities.clear();
   }
 }

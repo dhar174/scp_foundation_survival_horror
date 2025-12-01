@@ -143,7 +143,7 @@ export class DebugOverlay {
       if (typeof value === 'number') {
         lines.push(`${key}: ${value.toFixed(2)}`);
       } else if (Array.isArray(value)) {
-        lines.push(`${key}: [${value.map((v) => v.toFixed(2)).join(', ')}]`);
+        lines.push(`${key}: [${value.map((v) => typeof v === 'number' ? v.toFixed(2) : String(v)).join(', ')}]`);
       } else {
         lines.push(`${key}: ${value}`);
       }

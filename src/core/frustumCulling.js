@@ -67,7 +67,13 @@ export class AABB {
    * @returns {AABB} Transformed AABB (new instance)
    */
   transform(matrix) {
-    const corners = [
+    // Reuse a single Float32Array for all corners to reduce allocations
+    const corner = new Float32Array(3);
+    const newMin = new Float32Array([Infinity, Infinity, Infinity]);
+    const newMax = new Float32Array([-Infinity, -Infinity, -Infinity]);
+
+    // Process all 8 corners of the AABB
+    const cornerCoords = [
       [this.min[0], this.min[1], this.min[2]],
       [this.max[0], this.min[1], this.min[2]],
       [this.min[0], this.max[1], this.min[2]],
@@ -78,19 +84,15 @@ export class AABB {
       [this.max[0], this.max[1], this.max[2]],
     ];
 
-    const transformedCorner = new Float32Array(3);
-    const newMin = new Float32Array([Infinity, Infinity, Infinity]);
-    const newMax = new Float32Array([-Infinity, -Infinity, -Infinity]);
-
-    for (const corner of corners) {
-      transformedCorner[0] = corner[0];
-      transformedCorner[1] = corner[1];
-      transformedCorner[2] = corner[2];
-      vec3.transformMat4(transformedCorner, transformedCorner, matrix);
+    for (const coords of cornerCoords) {
+      corner[0] = coords[0];
+      corner[1] = coords[1];
+      corner[2] = coords[2];
+      vec3.transformMat4(corner, corner, matrix);
 
       for (let i = 0; i < 3; i++) {
-        if (transformedCorner[i] < newMin[i]) newMin[i] = transformedCorner[i];
-        if (transformedCorner[i] > newMax[i]) newMax[i] = transformedCorner[i];
+        if (corner[i] < newMin[i]) newMin[i] = corner[i];
+        if (corner[i] > newMax[i]) newMax[i] = corner[i];
       }
     }
 

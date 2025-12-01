@@ -131,7 +131,7 @@ export class Entity {
     if (!this.active || this._destroyed) return;
 
     for (const component of this.components) {
-      if (component.update) {
+      if (component.update && component.enabled) {
         component.update(dt);
       }
     }
