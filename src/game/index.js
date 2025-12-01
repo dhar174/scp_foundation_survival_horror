@@ -26,5 +26,11 @@ export {
   prewarmTextures,
 } from './proceduralTextures.js';
 
+// Player controller
+export { PlayerController } from './player.js';
+
+// HUD overlay
+export { HUD } from './hud.js';
+
 // Placeholder for future game systems
-// Will include Player, SCP behaviors, Doors, Keycards, Levels, GameState
+// Will include SCP behaviors, Doors, Keycards, Levels, GameState

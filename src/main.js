@@ -17,6 +17,8 @@ import {
   buildSCP173Parts,
   generate173Texture,
   mergeMeshParts,
+  PlayerController,
+  HUD,
 } from './game/index.js';
 import {
   Scene,
@@ -210,15 +212,94 @@ function main() {
   floorEntity.addComponent(new RenderableComponent(floorMesh, floorMaterial));
   scene.addEntityImmediate(floorEntity);
 
+  // Create wall meshes
+  const wallGeometry = buildBox(10, 3, 0.3);
+  const wallMesh = createMesh(gl, wallGeometry);
+
+  // Back wall entity
+  const backWallEntity = new Entity();
+  backWallEntity.position[0] = 0;
+  backWallEntity.position[1] = 1;
+  backWallEntity.position[2] = -5;
+  backWallEntity.addTag('wall');
+  backWallEntity.addComponent(new RenderableComponent(wallMesh, boxMaterial));
+  scene.addEntityImmediate(backWallEntity);
+
+  // Side wall geometry
+  const sideWallGeometry = buildBox(0.3, 3, 10);
+  const sideWallMesh = createMesh(gl, sideWallGeometry);
+
+  // Left wall entity
+  const leftWallEntity = new Entity();
+  leftWallEntity.position[0] = -5;
+  leftWallEntity.position[1] = 1;
+  leftWallEntity.position[2] = 0;
+  leftWallEntity.addTag('wall');
+  leftWallEntity.addComponent(new RenderableComponent(sideWallMesh, boxMaterial));
+  scene.addEntityImmediate(leftWallEntity);
+
+  // Right wall entity
+  const rightWallEntity = new Entity();
+  rightWallEntity.position[0] = 5;
+  rightWallEntity.position[1] = 1;
+  rightWallEntity.position[2] = 0;
+  rightWallEntity.addTag('wall');
+  rightWallEntity.addComponent(new RenderableComponent(sideWallMesh, boxMaterial));
+  scene.addEntityImmediate(rightWallEntity);
+
   // SCP-173 entity
   const scp173Entity = new Entity();
-  scp173Entity.position[0] = -2;
+  scp173Entity.position[0] = -3;
   scp173Entity.position[1] = -0.5;
-  scp173Entity.position[2] = 0;
+  scp173Entity.position[2] = -4;
   scp173Entity.addTag('scp');
   scp173Entity.addTag('scp-173');
   scp173Entity.addComponent(new RenderableComponent(scp173Mesh, scp173Material));
   scene.addEntityImmediate(scp173Entity);
+
+  // Create player entity with controller
+  const playerEntity = new Entity();
+  playerEntity.position[0] = 4;
+  playerEntity.position[1] = 0; // Ground level
+  playerEntity.position[2] = 6;
+  playerEntity.addTag('player');
+  const playerController = new PlayerController(input, renderer);
+  playerController.groundLevel = -0.5; // Match floor level
+  playerController.setPosition(4, -0.5, 6);
+  playerController.setYaw(Math.PI + 0.5); // Face toward the scene
+
+  // Add static colliders for walls and floor
+  // Floor collider
+  playerController.addStaticCollider({
+    position: new Float32Array([0, -0.55 - 0.05, 0]),
+    halfSize: new Float32Array([5, 0.05, 5]),
+  });
+  // Back wall collider
+  playerController.addStaticCollider({
+    position: new Float32Array([0, 1, -5]),
+    halfSize: new Float32Array([5, 1.5, 0.15]),
+  });
+  // Left wall collider
+  playerController.addStaticCollider({
+    position: new Float32Array([-5, 1, 0]),
+    halfSize: new Float32Array([0.15, 1.5, 5]),
+  });
+  // Right wall collider
+  playerController.addStaticCollider({
+    position: new Float32Array([5, 1, 0]),
+    halfSize: new Float32Array([0.15, 1.5, 5]),
+  });
+  // Rotating box collider
+  playerController.addStaticCollider({
+    position: new Float32Array([0, 0, 0]),
+    halfSize: new Float32Array([0.5, 0.5, 0.5]),
+  });
+
+  playerEntity.addComponent(playerController);
+  scene.addEntityImmediate(playerEntity);
+
+  // Create HUD
+  const hud = new HUD(canvas);
 
   // Add all renderables to the renderer
   for (const entity of scene.entities) {
@@ -232,10 +313,6 @@ function main() {
   }
 
   console.log(`Scene initialized with ${scene.getEntityCount()} entities`);
-
-  // Set camera position for good view
-  renderer.setCameraPosition(4, 2, 6);
-  renderer.setCameraTarget(0, 0, 0);
 
   // Set lighting
   renderer.setLightDirection(-0.5, -1.0, -0.3);
@@ -271,6 +348,9 @@ function main() {
 
     // Render the scene
     renderer.render();
+
+    // Render HUD overlay
+    hud.render();
 
     // Clear per-frame input state
     input.clearFrameState();
