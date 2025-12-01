@@ -12,7 +12,7 @@ function createPRNG(seed) {
   let state = seed >>> 0;
   return function () {
     state = (state * 1664525 + 1013904223) >>> 0;
-    return state / 0xffffffff;
+    return state / 0x100000000;
   };
 }
 
@@ -99,11 +99,13 @@ export function generateMetalFloorTexture(size, seed = 54321) {
   // Bolt details using seeded random for consistency
   const rand = createPRNG(seed);
   ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-  for (let i = 0; i < 24; i++) {
+  const boltCount = Math.floor(size / 20);
+  const boltRadius = size * 0.004;
+  for (let i = 0; i < boltCount; i++) {
     const x = rand() * size;
     const y = rand() * size;
     ctx.beginPath();
-    ctx.arc(x, y, 2, 0, Math.PI * 2);
+    ctx.arc(x, y, boltRadius, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -155,7 +157,9 @@ export function generateDoorTexture(level, size) {
   // Panel grooves
   ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
   ctx.lineWidth = 2;
-  for (let y = 40; y < canvas.height; y += 80) {
+  const grooveStart = canvas.height * 0.15;
+  const grooveSpacing = canvas.height * 0.3;
+  for (let y = grooveStart; y < canvas.height; y += grooveSpacing) {
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(canvas.width, y);
@@ -169,12 +173,18 @@ export function generateDoorTexture(level, size) {
 
   // "Label" bar (identifier plate)
   ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-  ctx.fillRect(10, 10, canvas.width - 20, 24);
+  const margin = size * 0.04;
+  const labelHeight = size * 0.1;
+  ctx.fillRect(margin, margin, canvas.width - 2 * margin, labelHeight);
 
   // Add subtle noise for texture
   const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imgData.data;
-  const rand = createPRNG(level.charCodeAt(0) * 1000);
+  const rand = createPRNG(
+    level && typeof level === 'string' && level.length > 0
+      ? level.charCodeAt(0) * 1000
+      : 1000
+  );
 
   for (let i = 0; i < data.length; i += 4) {
     const noise = (rand() - 0.5) * 10;
@@ -269,7 +279,7 @@ export function generate106Texture(size, seed = 10610) {
   for (let i = 0; i < 12; i++) {
     const x = rand() * size;
     const y = rand() * size;
-    const radius = rand() * 20 + 5;
+    const radius = rand() * size * 0.04 + size * 0.01;
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fill();
@@ -338,22 +348,23 @@ export function generateKeycardTexture(level, size = 64) {
 
   const canvas = document.createElement('canvas');
   canvas.width = size;
-  canvas.height = size * 0.6; // Card aspect ratio
+  const cardHeight = Math.round(size * 0.6); // Card aspect ratio, integer for compatibility
+  canvas.height = cardHeight;
 
   const ctx = canvas.getContext('2d');
 
   // Card base (white/off-white)
   ctx.fillStyle = '#f5f5f5';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, canvas.width, cardHeight);
 
   // Color band stripe
   ctx.fillStyle = colors.stripe;
-  ctx.fillRect(0, canvas.height * 0.7, canvas.width, canvas.height * 0.3);
+  ctx.fillRect(0, cardHeight * 0.7, canvas.width, cardHeight * 0.3);
 
   // Border
   ctx.strokeStyle = '#333333';
   ctx.lineWidth = 2;
-  ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+  ctx.strokeRect(1, 1, canvas.width - 2, cardHeight - 2);
 
   return canvas;
 }

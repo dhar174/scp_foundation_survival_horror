@@ -154,7 +154,10 @@ export function mergeMeshParts(parts) {
   const positions = new Float32Array(totalVertices * 3);
   const normals = new Float32Array(totalVertices * 3);
   const uvs = new Float32Array(totalVertices * 2);
-  const indices = new Uint16Array(totalIndices);
+  const indices =
+    totalVertices > 65535
+      ? new Uint32Array(totalIndices)
+      : new Uint16Array(totalIndices);
 
   let vertexOffset = 0;
   let indexOffset = 0;
@@ -198,7 +201,7 @@ export function mergeMeshParts(parts) {
  * @param {number} length - Corridor segment length (Z axis)
  * @param {number} [width=3] - Corridor width (X axis)
  * @param {number} [height=2.6] - Corridor height (Y axis)
- * @returns {Object} Corridor segment with floor, ceiling, leftWall, rightWall meshes and colliders
+ * @returns {Object} Corridor segment with floor, ceiling, leftWall, rightWall meshes, colliders, and dimensions
  */
 export function generateCorridorSegment(length, width = 3, height = 2.6) {
   const wallThickness = 0.1;
@@ -242,7 +245,7 @@ export function generateCorridorSegment(length, width = 3, height = 2.6) {
  * @param {number} config.depth - Room depth (Z axis)
  * @param {number} [config.height=2.6] - Room height (Y axis)
  * @param {boolean} [config.openFront=false] - Leave front wall open (for door placement)
- * @returns {Object} Room geometry with floor, ceiling, walls, spawn points, and colliders
+ * @returns {Object} Room geometry with floor, ceiling, walls, spawn points, navNodes, and colliders
  */
 export function generateRoom(config) {
   const { width, depth, height = 2.6, openFront = false } = config;
@@ -279,10 +282,18 @@ export function generateRoom(config) {
     };
   }
 
-  // Define spawn points within the room
+  // Define spawn points within the room (clamped to stay inside room bounds)
   const spawnPoints = {
-    playerStart: [0, 0.1, depth / 2 - 1], // Near front of room
-    scpSpawn: [0, 0.1, -depth / 2 + 1], // Near back of room
+    playerStart: [
+      0,
+      0.1,
+      Math.max(-depth / 2 + 0.5, Math.min(depth / 2 - 0.5, depth / 2 - 1)),
+    ], // Near front of room, clamped inside
+    scpSpawn: [
+      0,
+      0.1,
+      Math.min(depth / 2 - 0.5, Math.max(-depth / 2 + 0.5, -depth / 2 + 1)),
+    ], // Near back of room, clamped inside
     keycardSpawn: [width / 4, 0.5, 0], // Side of room on a stand
     doorPosition: [0, 0, depth / 2], // Center of front wall
   };
@@ -328,12 +339,12 @@ export function generateRoom(config) {
 }
 
 /**
- * Generate a simple door frame geometry.
- * Creates the door panel and frame.
+ * Generate a simple door panel geometry.
+ * Creates the door panel geometry.
  * @param {number} [doorWidth=1.2] - Door width
  * @param {number} [doorHeight=2.2] - Door height
  * @param {number} [doorDepth=0.1] - Door thickness
- * @returns {Object} Door geometry with panel mesh and collider
+ * @returns {Object} Door geometry with panel mesh, collider, and dimensions
  */
 export function generateDoorGeometry(doorWidth = 1.2, doorHeight = 2.2, doorDepth = 0.1) {
   return {
