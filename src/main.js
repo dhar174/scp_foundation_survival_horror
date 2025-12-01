@@ -7,11 +7,18 @@ import {
   initGL,
   buildBox,
   createMesh,
-  createSolidColorTexture,
+  createTextureFromCanvas,
   Material,
   Renderer,
 } from './gl/index.js';
 import * as vec3 from './math/vec3.js';
+import {
+  generateConcreteTexture,
+  generateMetalFloorTexture,
+  buildSCP173Parts,
+  generate173Texture,
+  mergeMeshParts,
+} from './game/index.js';
 
 /**
  * Handle canvas resize to match display size
@@ -90,13 +97,21 @@ function main() {
   // Handle window resize
   window.addEventListener('resize', () => resizeCanvas(canvas, gl, renderer));
 
-  // Create box mesh for demonstration
+  // Generate procedural textures
+  console.log('Generating procedural textures...');
+  const concreteCanvas = generateConcreteTexture(512, 12345);
+  const metalFloorCanvas = generateMetalFloorTexture(512);
+  const scp173Canvas = generate173Texture(256);
+
+  const concreteTexture = createTextureFromCanvas(gl, concreteCanvas);
+  const metalFloorTexture = createTextureFromCanvas(gl, metalFloorCanvas);
+  const scp173Texture = createTextureFromCanvas(gl, scp173Canvas);
+  console.log('Procedural textures generated successfully');
+
+  // Create a wall box with concrete texture
   const boxGeometry = buildBox(1, 1, 1);
   const boxMesh = createMesh(gl, boxGeometry);
-
-  // Create a simple gray texture for the box
-  const grayTexture = createSolidColorTexture(gl, 150, 150, 160);
-  const boxMaterial = new Material({ diffuseMap: grayTexture });
+  const boxMaterial = new Material({ diffuseMap: concreteTexture });
 
   // Add a box to render - positioned at origin
   const box1 = {
@@ -108,11 +123,10 @@ function main() {
   };
   renderer.addRenderable(box1);
 
-  // Add a floor box
+  // Add a floor with metal floor texture
   const floorGeometry = buildBox(10, 0.1, 10);
   const floorMesh = createMesh(gl, floorGeometry);
-  const floorTexture = createSolidColorTexture(gl, 80, 80, 90);
-  const floorMaterial = new Material({ diffuseMap: floorTexture });
+  const floorMaterial = new Material({ diffuseMap: metalFloorTexture });
 
   const floor = {
     mesh: floorMesh,
@@ -123,8 +137,25 @@ function main() {
   };
   renderer.addRenderable(floor);
 
+  // Build and add SCP-173 using procedural geometry
+  console.log('Building SCP-173 model...');
+  const scp173Parts = buildSCP173Parts();
+  const scp173Merged = mergeMeshParts(scp173Parts);
+  const scp173Mesh = createMesh(gl, scp173Merged);
+  const scp173Material = new Material({ diffuseMap: scp173Texture });
+
+  const scp173 = {
+    mesh: scp173Mesh,
+    material: scp173Material,
+    position: vec3.create(-2, -0.5, 0),
+    rotation: vec3.create(0, 0, 0),
+    scale: vec3.create(1, 1, 1),
+  };
+  renderer.addRenderable(scp173);
+  console.log('SCP-173 model built successfully');
+
   // Set camera position for good view
-  renderer.setCameraPosition(3, 2, 5);
+  renderer.setCameraPosition(4, 2, 6);
   renderer.setCameraTarget(0, 0, 0);
 
   // Set lighting
