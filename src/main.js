@@ -17,6 +17,8 @@ import {
   buildSCP173Parts,
   generate173Texture,
   mergeMeshParts,
+  PlayerController,
+  HUD,
 } from './game/index.js';
 import {
   Scene,
@@ -203,22 +205,127 @@ function main() {
 
   // Floor entity
   const floorEntity = new Entity();
-  floorEntity.position[0] = 0;
-  floorEntity.position[1] = -0.55;
-  floorEntity.position[2] = 0;
+  const floorPosX = 0;
+  const floorPosY = -0.55;
+  const floorPosZ = 0;
+  floorEntity.position[0] = floorPosX;
+  floorEntity.position[1] = floorPosY;
+  floorEntity.position[2] = floorPosZ;
   floorEntity.addTag('floor');
   floorEntity.addComponent(new RenderableComponent(floorMesh, floorMaterial));
   scene.addEntityImmediate(floorEntity);
 
+  // Create wall meshes
+  const wallGeometry = buildBox(10, 3, 0.3);
+  const wallMesh = createMesh(gl, wallGeometry);
+
+  // Back wall entity
+  const backWallEntity = new Entity();
+  const backWallPosX = 0;
+  const backWallPosY = 1;
+  const backWallPosZ = -5;
+  const backWallWidth = 10;
+  const backWallHeight = 3;
+  const backWallDepth = 0.3;
+  backWallEntity.position[0] = backWallPosX;
+  backWallEntity.position[1] = backWallPosY;
+  backWallEntity.position[2] = backWallPosZ;
+  backWallEntity.addTag('wall');
+  backWallEntity.addComponent(new RenderableComponent(wallMesh, boxMaterial));
+  scene.addEntityImmediate(backWallEntity);
+
+  // Side wall geometry
+  const sideWallGeometry = buildBox(0.3, 3, 10);
+  const sideWallMesh = createMesh(gl, sideWallGeometry);
+
+  // Left wall entity
+  const leftWallEntity = new Entity();
+  const leftWallPosX = -5;
+  const leftWallPosY = 1;
+  const leftWallPosZ = 0;
+  const sideWallWidth = 0.3;
+  const sideWallHeight = 3;
+  const sideWallDepth = 10;
+  leftWallEntity.position[0] = leftWallPosX;
+  leftWallEntity.position[1] = leftWallPosY;
+  leftWallEntity.position[2] = leftWallPosZ;
+  leftWallEntity.addTag('wall');
+  leftWallEntity.addComponent(new RenderableComponent(sideWallMesh, boxMaterial));
+  scene.addEntityImmediate(leftWallEntity);
+
+  // Right wall entity
+  const rightWallEntity = new Entity();
+  const rightWallPosX = 5;
+  const rightWallPosY = 1;
+  const rightWallPosZ = 0;
+  rightWallEntity.position[0] = rightWallPosX;
+  rightWallEntity.position[1] = rightWallPosY;
+  rightWallEntity.position[2] = rightWallPosZ;
+  rightWallEntity.addTag('wall');
+  rightWallEntity.addComponent(new RenderableComponent(sideWallMesh, boxMaterial));
+  scene.addEntityImmediate(rightWallEntity);
+
   // SCP-173 entity
   const scp173Entity = new Entity();
-  scp173Entity.position[0] = -2;
+  scp173Entity.position[0] = -3;
   scp173Entity.position[1] = -0.5;
-  scp173Entity.position[2] = 0;
+  scp173Entity.position[2] = -4;
   scp173Entity.addTag('scp');
   scp173Entity.addTag('scp-173');
   scp173Entity.addComponent(new RenderableComponent(scp173Mesh, scp173Material));
   scene.addEntityImmediate(scp173Entity);
+
+  // Create player entity with controller
+  const playerEntity = new Entity();
+  const playerStartPosX = 4;
+  const playerStartPosY = -0.5;
+  const playerStartPosZ = 6;
+  playerEntity.addTag('player');
+  const playerController = new PlayerController(input, renderer);
+  playerController.groundLevel = playerStartPosY;
+  playerController.setPosition(playerStartPosX, playerStartPosY, playerStartPosZ);
+  
+  // Calculate yaw to face toward the scene origin (0, 0, 0)
+  const sceneTargetX = 0;
+  const sceneTargetZ = 0;
+  const initialYaw = Math.atan2(
+    sceneTargetX - playerStartPosX,
+    sceneTargetZ - playerStartPosZ
+  );
+  playerController.setYaw(initialYaw);
+
+  // Add static colliders for walls and floor
+  // Floor collider
+  playerController.addStaticCollider({
+    position: new Float32Array([floorPosX, floorPosY, floorPosZ]),
+    halfSize: new Float32Array([10 / 2, 0.1 / 2, 10 / 2]),
+  });
+  // Back wall collider
+  playerController.addStaticCollider({
+    position: new Float32Array([backWallPosX, backWallPosY, backWallPosZ]),
+    halfSize: new Float32Array([backWallWidth / 2, backWallHeight / 2, backWallDepth / 2]),
+  });
+  // Left wall collider
+  playerController.addStaticCollider({
+    position: new Float32Array([leftWallPosX, leftWallPosY, leftWallPosZ]),
+    halfSize: new Float32Array([sideWallWidth / 2, sideWallHeight / 2, sideWallDepth / 2]),
+  });
+  // Right wall collider
+  playerController.addStaticCollider({
+    position: new Float32Array([rightWallPosX, rightWallPosY, rightWallPosZ]),
+    halfSize: new Float32Array([sideWallWidth / 2, sideWallHeight / 2, sideWallDepth / 2]),
+  });
+  // Rotating box collider
+  playerController.addStaticCollider({
+    position: new Float32Array([boxEntity.position[0], boxEntity.position[1], boxEntity.position[2]]),
+    halfSize: new Float32Array([1 / 2, 1 / 2, 1 / 2]),
+  });
+
+  playerEntity.addComponent(playerController);
+  scene.addEntityImmediate(playerEntity);
+
+  // Create HUD
+  const hud = new HUD(canvas);
 
   // Add all renderables to the renderer
   for (const entity of scene.entities) {
@@ -232,10 +339,6 @@ function main() {
   }
 
   console.log(`Scene initialized with ${scene.getEntityCount()} entities`);
-
-  // Set camera position for good view
-  renderer.setCameraPosition(4, 2, 6);
-  renderer.setCameraTarget(0, 0, 0);
 
   // Set lighting
   renderer.setLightDirection(-0.5, -1.0, -0.3);
@@ -271,6 +374,9 @@ function main() {
 
     // Render the scene
     renderer.render();
+
+    // Render HUD overlay
+    hud.render();
 
     // Clear per-frame input state
     input.clearFrameState();
