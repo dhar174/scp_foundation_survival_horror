@@ -33,6 +33,8 @@ export class PlayerController extends Component {
     this.acceleration = 20.0;
     /** @type {number} Movement deceleration (friction) */
     this.deceleration = 10.0;
+    /** @type {number} Epsilon for movement magnitude checks */
+    this.MOVEMENT_EPSILON = 0.001;
 
     // Jump settings
     /** @type {boolean} Whether jump is enabled */
@@ -53,7 +55,7 @@ export class PlayerController extends Component {
     this.yaw = 0;
     /** @type {number} Camera pitch (vertical rotation) in radians */
     this.pitch = 0;
-    /** @type {number} Maximum pitch angle (prevents over-rotation) */
+    /** @type {number} Maximum pitch angle in radians (~85°, prevents over-rotation) */
     this.maxPitch = Math.PI / 2 - 0.1;
 
     // Velocity tracking
@@ -71,7 +73,9 @@ export class PlayerController extends Component {
     // Temp vectors for calculations
     this._tempForward = vec3.create();
     this._tempRight = vec3.create();
-    this._tempVelocity = vec3.create();
+    
+    // Reusable array for collision resolution to reduce allocations
+    this._resolvedPosition = new Float32Array([0, 0, 0]);
   }
 
   /**
@@ -151,7 +155,7 @@ export class PlayerController extends Component {
 
     // Normalize diagonal movement
     const mag = Math.sqrt(moveX * moveX + moveZ * moveZ);
-    if (mag > 0.001) {
+    if (mag > this.MOVEMENT_EPSILON) {
       moveX /= mag;
       moveZ /= mag;
     }
@@ -166,7 +170,7 @@ export class PlayerController extends Component {
     const targetVelZ = moveZ * targetSpeed;
 
     // Smoothly interpolate velocity (acceleration/deceleration)
-    const hasInput = mag > 0.001;
+    const hasInput = mag > this.MOVEMENT_EPSILON;
     const lerpFactor = hasInput
       ? this.acceleration * dt
       : this.deceleration * dt;
@@ -197,13 +201,6 @@ export class PlayerController extends Component {
     this.entity.position[0] = resolvedPos[0];
     this.entity.position[1] = resolvedPos[1];
     this.entity.position[2] = resolvedPos[2];
-
-    // Check ground collision
-    if (this.entity.position[1] <= this.groundLevel) {
-      this.entity.position[1] = this.groundLevel;
-      this.velocity[1] = 0;
-      this.isGrounded = true;
-    }
   }
 
   /**
@@ -214,8 +211,14 @@ export class PlayerController extends Component {
    * @returns {Float32Array} Resolved position [x, y, z]
    */
   resolveCollisions(newX, newY, newZ) {
-    const result = new Float32Array([newX, newY, newZ]);
+    // Reuse preallocated array to reduce GC pressure
+    const result = this._resolvedPosition;
+    result[0] = newX;
+    result[1] = newY;
+    result[2] = newZ;
     const currentPos = this.entity.position;
+    
+    let foundGroundCollider = false;
 
     // Player AABB (using cylinder approximation)
     const playerMinX = newX - this.collisionRadius;
@@ -278,9 +281,17 @@ export class PlayerController extends Component {
             result[1] = colMaxY;
             this.velocity[1] = 0;
             this.isGrounded = true;
+            foundGroundCollider = true;
           }
         }
       }
+    }
+    
+    // Only check fallback ground level if no floor collider was found
+    if (!foundGroundCollider && result[1] <= this.groundLevel) {
+      result[1] = this.groundLevel;
+      this.velocity[1] = 0;
+      this.isGrounded = true;
     }
 
     return result;
@@ -288,11 +299,23 @@ export class PlayerController extends Component {
 
   /**
    * Add a static collider for collision detection.
-   * @param {Object} collider - Collider object
-   * @param {Float32Array} collider.position - Center position [x, y, z]
-   * @param {Float32Array} collider.halfSize - Half-size [x, y, z]
+   * @param {{position: Float32Array, halfSize: Float32Array}} collider - Collider object with required properties.
+   *   - position: Float32Array of length 3, center position [x, y, z]
+   *   - halfSize: Float32Array of length 3, half-size [x, y, z]
+   * @throws {TypeError} If collider is missing required properties or types.
    */
   addStaticCollider(collider) {
+    if (
+      typeof collider !== 'object' || collider === null ||
+      !(collider.position instanceof Float32Array) ||
+      !(collider.halfSize instanceof Float32Array) ||
+      collider.position.length !== 3 ||
+      collider.halfSize.length !== 3
+    ) {
+      throw new TypeError(
+        "Invalid collider: must be an object with 'position' and 'halfSize' properties, both Float32Array of length 3."
+      );
+    }
     this.staticColliders.push(collider);
   }
 
@@ -373,7 +396,6 @@ export class PlayerController extends Component {
       this.entity.position[0] = x;
       this.entity.position[1] = y;
       this.entity.position[2] = z;
-      this.groundLevel = y;
     }
   }
 
@@ -386,5 +408,15 @@ export class PlayerController extends Component {
     if (this.entity) {
       this.entity.rotation[1] = yaw;
     }
+  }
+  
+  /**
+   * Clean up resources when component is destroyed.
+   */
+  onDestroy() {
+    // Clear references to external objects
+    this.input = null;
+    this.renderer = null;
+    this.staticColliders = [];
   }
 }

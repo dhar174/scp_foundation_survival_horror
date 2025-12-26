@@ -205,9 +205,12 @@ function main() {
 
   // Floor entity
   const floorEntity = new Entity();
-  floorEntity.position[0] = 0;
-  floorEntity.position[1] = -0.55;
-  floorEntity.position[2] = 0;
+  const floorPosX = 0;
+  const floorPosY = -0.55;
+  const floorPosZ = 0;
+  floorEntity.position[0] = floorPosX;
+  floorEntity.position[1] = floorPosY;
+  floorEntity.position[2] = floorPosZ;
   floorEntity.addTag('floor');
   floorEntity.addComponent(new RenderableComponent(floorMesh, floorMaterial));
   scene.addEntityImmediate(floorEntity);
@@ -218,9 +221,15 @@ function main() {
 
   // Back wall entity
   const backWallEntity = new Entity();
-  backWallEntity.position[0] = 0;
-  backWallEntity.position[1] = 1;
-  backWallEntity.position[2] = -5;
+  const backWallPosX = 0;
+  const backWallPosY = 1;
+  const backWallPosZ = -5;
+  const backWallWidth = 10;
+  const backWallHeight = 3;
+  const backWallDepth = 0.3;
+  backWallEntity.position[0] = backWallPosX;
+  backWallEntity.position[1] = backWallPosY;
+  backWallEntity.position[2] = backWallPosZ;
   backWallEntity.addTag('wall');
   backWallEntity.addComponent(new RenderableComponent(wallMesh, boxMaterial));
   scene.addEntityImmediate(backWallEntity);
@@ -231,18 +240,27 @@ function main() {
 
   // Left wall entity
   const leftWallEntity = new Entity();
-  leftWallEntity.position[0] = -5;
-  leftWallEntity.position[1] = 1;
-  leftWallEntity.position[2] = 0;
+  const leftWallPosX = -5;
+  const leftWallPosY = 1;
+  const leftWallPosZ = 0;
+  const sideWallWidth = 0.3;
+  const sideWallHeight = 3;
+  const sideWallDepth = 10;
+  leftWallEntity.position[0] = leftWallPosX;
+  leftWallEntity.position[1] = leftWallPosY;
+  leftWallEntity.position[2] = leftWallPosZ;
   leftWallEntity.addTag('wall');
   leftWallEntity.addComponent(new RenderableComponent(sideWallMesh, boxMaterial));
   scene.addEntityImmediate(leftWallEntity);
 
   // Right wall entity
   const rightWallEntity = new Entity();
-  rightWallEntity.position[0] = 5;
-  rightWallEntity.position[1] = 1;
-  rightWallEntity.position[2] = 0;
+  const rightWallPosX = 5;
+  const rightWallPosY = 1;
+  const rightWallPosZ = 0;
+  rightWallEntity.position[0] = rightWallPosX;
+  rightWallEntity.position[1] = rightWallPosY;
+  rightWallEntity.position[2] = rightWallPosZ;
   rightWallEntity.addTag('wall');
   rightWallEntity.addComponent(new RenderableComponent(sideWallMesh, boxMaterial));
   scene.addEntityImmediate(rightWallEntity);
@@ -259,40 +277,48 @@ function main() {
 
   // Create player entity with controller
   const playerEntity = new Entity();
-  playerEntity.position[0] = 4;
-  playerEntity.position[1] = 0; // Ground level
-  playerEntity.position[2] = 6;
+  const playerStartPosX = 4;
+  const playerStartPosY = -0.5;
+  const playerStartPosZ = 6;
   playerEntity.addTag('player');
   const playerController = new PlayerController(input, renderer);
-  playerController.groundLevel = -0.5; // Match floor level
-  playerController.setPosition(4, -0.5, 6);
-  playerController.setYaw(Math.PI + 0.5); // Face toward the scene
+  playerController.groundLevel = playerStartPosY;
+  playerController.setPosition(playerStartPosX, playerStartPosY, playerStartPosZ);
+  
+  // Calculate yaw to face toward the scene origin (0, 0, 0)
+  const sceneTargetX = 0;
+  const sceneTargetZ = 0;
+  const initialYaw = Math.atan2(
+    sceneTargetX - playerStartPosX,
+    sceneTargetZ - playerStartPosZ
+  );
+  playerController.setYaw(initialYaw);
 
   // Add static colliders for walls and floor
   // Floor collider
   playerController.addStaticCollider({
-    position: new Float32Array([0, -0.55 - 0.05, 0]),
-    halfSize: new Float32Array([5, 0.05, 5]),
+    position: new Float32Array([floorPosX, floorPosY, floorPosZ]),
+    halfSize: new Float32Array([10 / 2, 0.1 / 2, 10 / 2]),
   });
   // Back wall collider
   playerController.addStaticCollider({
-    position: new Float32Array([0, 1, -5]),
-    halfSize: new Float32Array([5, 1.5, 0.15]),
+    position: new Float32Array([backWallPosX, backWallPosY, backWallPosZ]),
+    halfSize: new Float32Array([backWallWidth / 2, backWallHeight / 2, backWallDepth / 2]),
   });
   // Left wall collider
   playerController.addStaticCollider({
-    position: new Float32Array([-5, 1, 0]),
-    halfSize: new Float32Array([0.15, 1.5, 5]),
+    position: new Float32Array([leftWallPosX, leftWallPosY, leftWallPosZ]),
+    halfSize: new Float32Array([sideWallWidth / 2, sideWallHeight / 2, sideWallDepth / 2]),
   });
   // Right wall collider
   playerController.addStaticCollider({
-    position: new Float32Array([5, 1, 0]),
-    halfSize: new Float32Array([0.15, 1.5, 5]),
+    position: new Float32Array([rightWallPosX, rightWallPosY, rightWallPosZ]),
+    halfSize: new Float32Array([sideWallWidth / 2, sideWallHeight / 2, sideWallDepth / 2]),
   });
   // Rotating box collider
   playerController.addStaticCollider({
-    position: new Float32Array([0, 0, 0]),
-    halfSize: new Float32Array([0.5, 0.5, 0.5]),
+    position: new Float32Array([boxEntity.position[0], boxEntity.position[1], boxEntity.position[2]]),
+    halfSize: new Float32Array([1 / 2, 1 / 2, 1 / 2]),
   });
 
   playerEntity.addComponent(playerController);

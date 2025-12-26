@@ -53,6 +53,12 @@ export class HUD {
     this.promptColor = 'rgba(255, 255, 255, 0.9)';
     /** @type {string} Prompt font */
     this.promptFont = '16px "Courier New", monospace';
+    
+    /** @type {boolean} Whether HUD has been disposed */
+    this._disposed = false;
+    
+    /** @type {number} Cached device pixel ratio */
+    this._cachedDpr = window.devicePixelRatio || 1;
 
     // Initial resize
     this.handleResize();
@@ -67,11 +73,12 @@ export class HUD {
    */
   handleResize() {
     const dpr = window.devicePixelRatio || 1;
+    this._cachedDpr = dpr;
     const displayWidth = this.gameCanvas.clientWidth;
     const displayHeight = this.gameCanvas.clientHeight;
     this.canvas.width = Math.round(displayWidth * dpr);
     this.canvas.height = Math.round(displayHeight * dpr);
-    // Reset transform and apply new scale for HiDPI
+    // Set transform to scaled DPR state for HiDPI
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
@@ -87,8 +94,10 @@ export class HUD {
    * Render the HUD overlay.
    */
   render() {
+    if (this._disposed) return;
+    
     const ctx = this.ctx;
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = this._cachedDpr;
     const width = this.canvas.width / dpr;
     const height = this.canvas.height / dpr;
 
@@ -120,31 +129,23 @@ export class HUD {
     const size = this.crosshairSize;
     const gap = this.crosshairGap;
 
-    // Top line
+    // Batch all four crosshair lines into a single path
     ctx.beginPath();
+    // Top line
     ctx.moveTo(x, y - gap);
     ctx.lineTo(x, y - gap - size);
-    ctx.stroke();
-
     // Bottom line
-    ctx.beginPath();
     ctx.moveTo(x, y + gap);
     ctx.lineTo(x, y + gap + size);
-    ctx.stroke();
-
     // Left line
-    ctx.beginPath();
     ctx.moveTo(x - gap, y);
     ctx.lineTo(x - gap - size, y);
-    ctx.stroke();
-
     // Right line
-    ctx.beginPath();
     ctx.moveTo(x + gap, y);
     ctx.lineTo(x + gap + size, y);
     ctx.stroke();
 
-    // Optional: Center dot
+    // Center dot
     ctx.fillStyle = this.crosshairColor;
     ctx.beginPath();
     ctx.arc(x, y, 1.5, 0, Math.PI * 2);
@@ -182,6 +183,9 @@ export class HUD {
    * Clean up HUD resources.
    */
   dispose() {
+    if (this._disposed) return;
+    
+    this._disposed = true;
     window.removeEventListener('resize', this._boundResize);
     if (this.canvas.parentNode) {
       this.canvas.parentNode.removeChild(this.canvas);
